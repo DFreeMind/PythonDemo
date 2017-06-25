@@ -1,6 +1,7 @@
 '''
 Created on 2017年6月23日
 抓取淘宝MM照片
+单独运行此文件时需要修改taomm_log_path的保存路径
 @author: weduoo
 '''
 #淘宝美人库地址
