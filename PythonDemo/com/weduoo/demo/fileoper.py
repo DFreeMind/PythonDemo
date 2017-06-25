@@ -5,10 +5,22 @@ Created on 2017年6月20日
 '''
 #读写文件
 #读文件 open(路径,读取的方式[r(read读),w(write覆盖写),a(append追加)])
-from idlelib.IOBinding import encoding
-from datetime import datetime, timedelta
-from collections import namedtuple, Counter
 from _collections import deque, OrderedDict
+from collections import namedtuple, Counter
+from datetime import datetime, timedelta
+
+"""
+ open操作的几种读写模式
+ 
+'r'       open for reading (default)
+'w'       open for writing, truncating the file first
+'x'       create a new file and open it for writing
+'a'       open for writing, appending to the end of the file if it exists
+'b'       binary mode
+'t'       text mode (default)
+'+'       open a disk filÅe for updating (reading and writing)Å
+'U'       universal newline mode (deprecated)
+"""
 path = "D://temp.txt"
 #读时指定编码格式
 f = open(path,"r",encoding="utf-8")
