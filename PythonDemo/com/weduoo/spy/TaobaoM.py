@@ -12,10 +12,16 @@ import urllib.request
 from bs4 import BeautifulSoup
 
 #爬去的照片存放位置
-path = "/Users/weduoo/Crawler/modelsss/"
+path = "/Users/weduoo/Crawler/models/"
 
 #已经爬出modle数据记录
 taomm_log_path = "../logs/taomm.log"
+
+#错误信息日志
+taomm_error_log_path = "../logs/taomm_error.log"
+
+#历史日志记录信息
+taomm_history_path = "../logs/taomm_history.log"
 
 #淘宝美人库地址
 beatiful_path = "https://mm.taobao.com/search_tstar_model.htm"
@@ -119,9 +125,14 @@ def for_url_save(models_list,model_history,page):
             m_path = path+model_name #+ "-" + str(model_id)
             mkdir(m_path)
             index = 0
+            #保存历史日志
+            history_log = open(taomm_history_path,"a",encoding="utf-8")
             for img in imgs_list:
-                saveImg("https:" + img, m_path+"/" + model_name +str(index)+".jpg",page)
+                pos = str(index+1)+"/"+str(len(imgs_list))
+                saveImg("https:" + img, m_path+"/" + model_name +str(index)+".jpg",page,pos)
+                history_log.write(str(model_id) +"\t" + model_name +"\t" + str(page) + "\t" + img + "\n")
                 index += 1
+            history_log.close()
         #已存在不爬取
         else:
             print("以爬取过得model：" + t[0] + "\t" + str(t[1]))
@@ -158,13 +169,22 @@ def get_models_pic(t):
     return t[0],t[1],imgs_list  
 
 #保存图片
-def saveImg(imageURL,fileName,page):
-    u = urllib.request.urlopen(imageURL)
-    data = u.read()
-    f = open(fileName, 'wb')
-    print("正在保存mm图片，保存地址：" + str(page) + "\t" + fileName +"\t" + imageURL)
-    f.write(data)
-    f.close()
+def saveImg(imageURL,fileName,page,pos):
+    try:
+        u = urllib.request.urlopen(imageURL)
+        data = u.read()
+        f = open(fileName, 'wb')
+        print("正在保存mm图片，保存地址：" + str(page) +"\t" +pos+ "\t" + fileName +"\t" + imageURL)
+        f.write(data)
+        f.close()
+    except:
+        print("无法打开:" + pos + "\t" + imageURL)
+        log_err_file = open(taomm_error_log_path,"a",encoding="utf-8")
+        log_err_file.write(pos+ "\t" + fileName +"\t" + imageURL + "\n")
+        log_err_file.close()
+        print("重新运行主方法")
+        main_func()
+       
 
 #创建文件夹
 def mkdir(path):
@@ -191,7 +211,7 @@ def mkdir(path):
 """
 def get_page_model_hitory(isPage):
     #默认初始页
-    page = 1
+    page = 2
     models_history_list = list()
     isExist = os.path.exists(taomm_log_path)
     page_list=list()
@@ -199,20 +219,26 @@ def get_page_model_hitory(isPage):
         data = open(taomm_log_path,"r",encoding = "utf-8")
         for line in data.readlines():
             model_page = line.split("\t")
-            print(model_page)
+            #print(model_page)
             models_history_list.append(model_page[0])
             page_list.append(int(model_page[2]))
+    print("以爬取历史model数量：" + str(len(page_list)))
     if isPage:
         #获取以保存的页码最大值
         page = max(page_list)
         return page,models_history_list
     else:
         return page,models_history_list
+
+
+def main_func():
+    page,model_history = get_page_model_hitory(True)
+    search_models(page,model_history)
+    
     
 #运行主方法
 if __name__ == '__main__':
-    page,model_history = get_page_model_hitory(True)
-    search_models(page,model_history)
+    main_func()
 
 
 
