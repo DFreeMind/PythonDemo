@@ -116,14 +116,15 @@ def get_models_info(models_data):
 #遍历url保存图片
 def for_url_save(models_list,model_history,page):
     for t in models_list:
-        #历史记录不存在则不爬取
+        #历史记录不存在则爬取
         if not isInHistry(t[1], model_history):
             model_name,model_id,imgs_list = get_models_pic(t)
             #将以爬取的model信息保存，下次不再爬取
-            save_model_history(model_id,model_name,page)
+            save_model_history(model_id,model_name,page,len(imgs_list))
             #设置图片保存地址主路径+model名字，也可以再拼接上model id
             m_path = path+model_name #+ "-" + str(model_id)
-            mkdir(m_path)
+            #创建文件夹
+            mkdir(m_path,len(imgs_list))
             index = 0
             #保存历史日志
             history_log = open(taomm_history_path,"a",encoding="utf-8")
@@ -147,10 +148,17 @@ def isInHistry(model_id,model_history):
 
 
 #保存已经爬取的model信息
-def save_model_history(model_id,model_name,page):
+"""
+保存已经爬取的model信息
+@param model_id: 模特的id
+@param model_name：模特的名字
+@param page: 第几页
+@param num: 照片的数量 
+"""
+def save_model_history(model_id,model_name,page,num):
     #打开历史信息文件操作
     log_file = open(taomm_log_path,"a",encoding="utf-8")
-    log_file.write(str(model_id) + "\t" + model_name + "\t" + str(page) + "\n")
+    log_file.write(str(model_id) + "\t" + model_name + "\t" + str(page) +"\t" + str(num) +"\n")
     log_file.close()
 
 #访问model的主页,爬出图片
@@ -186,9 +194,17 @@ def saveImg(imageURL,fileName,page,pos):
         main_func()
        
 
-#创建文件夹
-def mkdir(path):
+#
+"""
+创建文件夹，如果图片数量为0张则不创建文件夹
+@param path: 图片保存路径
+@param pic_num: 图片的数量
+"""
+def mkdir(path,pic_num):
     path = path.strip()
+    if pic_num == 0:
+        return
+    
     # 判断路径是否存在
     # 存在     True
     # 不存在   False
